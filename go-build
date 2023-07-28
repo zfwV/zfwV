@@ -1,0 +1,74 @@
+name: Build and Publish
+
+on:
+
+ push:
+
+  branches:
+
+   - main
+
+
+
+env:
+
+ IMAGE_VERSION: ${{ github.run_number }}
+
+
+jobs:
+
+ build:
+
+  name: Build
+
+  runs-on: ubuntu-latest
+
+
+
+  steps:
+
+   - name: Checkout code
+
+    uses: actions/checkout@v2
+
+
+
+   - name: Set up Go
+
+    uses: actions/setup-go@v2
+
+    with:
+
+     go-version: ${{ env.IMAGE_VERSION }}
+
+    
+
+   - name: Build and tag Docker image
+
+    run: |
+
+     docker build -t your-username/your-image-name:${{ env.IMAGE_VERSION }} .
+
+     docker push your-username/your-image-name:${{ env.IMAGE_VERSION }}
+
+
+
+   - name: Publish new release
+
+    uses: actions/create-release@v1
+
+    env:
+
+     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    with:
+
+     tag_name: v${{ env.IMAGE_VERSION }}
+
+     release_name: Release v${{ env.IMAGE_VERSION }}
+
+     body: This is an automated release.
+
+     draft: false
+
+     prerelease: false
